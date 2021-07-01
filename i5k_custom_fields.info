@@ -1,0 +1,6 @@
+description = Custom Fields for use on i5k Sites
+core = 7.x
+package = Tripal Extensions
+files[] = i5k_custom_fields.module
+version = 7.x-3.x
+dependencies = tripal, tripal_chado

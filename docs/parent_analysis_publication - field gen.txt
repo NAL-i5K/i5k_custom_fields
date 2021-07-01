@@ -1,0 +1,26 @@
+Field Generator - parent_analysis_publication
+
+These are the values used by in the Tripal Field Generator to generate the
+Field files for parent_analysis_publication
+
+
+Field Label
+Parent Analysis Publication
+
+Field Description
+Displays publications of the related parent analysis
+
+Module Name
+i5k_custom_fields
+
+Database name
+local
+
+Controlled Vocabulary
+local
+
+Controlled Vocabulary Term
+parent_analysis_pub
+
+Accession
+parent_analysis_pub
