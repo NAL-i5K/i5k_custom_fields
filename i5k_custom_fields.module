@@ -1,6 +1,6 @@
 <?php
 
 # Include the field for the parent_analysis_publication
-include('includes/polypeptide_annotations.fields.inc');
+include('includes/local__parent_analysis_pub.inc');
 
 # Include other fields later on...
