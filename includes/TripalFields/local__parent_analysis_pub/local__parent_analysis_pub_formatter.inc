@@ -9,7 +9,7 @@
 class local__parent_analysis_pub_formatter extends ChadoFieldFormatter {
 
   // The default label for this field.
-  public static $default_label = 'Parent Analysis Publication';
+  public static $default_label = 'Publication';
 
   // The list of field types for which this formatter is appropriate.
   public static $field_types = array('local__parent_analysis_pub');
@@ -37,6 +37,16 @@ class local__parent_analysis_pub_formatter extends ChadoFieldFormatter {
 
     // Get the settings
     $settings = $display['settings'];
+    $field = 'local__parent_analysis_pub';
+
+    // TODO: do this the proper Tripal way. We'll need the Entity ID of the
+    //  associated Publication, something that seems somewhat elusive.
+    //  At least try not to hardcode the /Publication/ part...
+
+    $element[] = [
+      '#type' => 'markup',
+      '#markup' => l($items[0]['value']['TPUB:0000039'],'/Publication/' . $items[0]['value']['entity_id']),
+    ];
   }
 
     /**
