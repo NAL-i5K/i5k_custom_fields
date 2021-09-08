@@ -17,7 +17,7 @@ class local__parent_analysis_pub extends ChadoField {
   // --------------------------------------------------------------------------
 
   // The default label for this field.
-  public static $default_label = 'Parent Analysis Publication';
+  public static $default_label = 'Publication';
 
   // The default description for this field.
   public static $default_description = 'Displays publications of the related parent analysis';
@@ -47,6 +47,7 @@ class local__parent_analysis_pub extends ChadoField {
      // function that are supported by the query() function should be
      // listed here.
     'searchable_keys' => array(),
+    // TODO Pumpkin check this out ^
   );
 
   // Indicates the download formats for this field.  The list must be the
@@ -110,7 +111,41 @@ class local__parent_analysis_pub extends ChadoField {
     // default settings above. If that is all you need then you don't even
     // need to implement this function. However, if you need to add any
     // additional data to be used in the display, you should add it here.
-    parent::load($entity);
+    //parent::load($entity); // Why is this commented out?
+
+    // Get the record for the purposes of traversing its related data
+    $record = $entity->chado_record;
+
+    $field = get_class($this);
+
+    #dpm($record); // mRNA type
+    // Expand the object to include the relationships
+    // I'm not sure if I need this part or if it needs to be expanded. PUMPKIN
+    $options =
+    [
+      'return_array' => 1
+    ];
+    $rel_table = 'analysisfeature';
+    $record = chado_expand_var($record, 'table', $rel_table, $options);
+
+    // Extract just the analysis
+    $analysis_v1 = $record->analysisfeature[0];
+    // Generate a new var for the analysis instead of continuously expanding,
+    //  which sort of does not work anyway (see diff of $analysis_v1 and 2)
+    $values = array (
+      'name' => $analysis_v1->analysis_id->name,
+    );
+    $analysis_v2 = chado_generate_var('analysis',$values);
+
+    // We have the analysis, now get the publication. Could we have done this with a single chado_expand_var()?
+    $publication = chado_expand_var($analysis_v2, 'table', 'analysis_pub');
+
+    // Load up the values into the $entity variable to pass on to the view() function
+    $entity->{$field}['und'][0]['value'] = [
+      "TPUB:0000039" => $publication->analysis_pub->pub_id->title,
+      "entity_id" =>    $publication->analysis_pub->pub_id->entity_id
+    ];
+    $publication->analysis_pub->pub_id->entity_id;
   }
 
 
