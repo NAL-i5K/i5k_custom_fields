@@ -5,7 +5,7 @@ Field files for parent_analysis_publication
 
 
 Field Label
-Publication
+Genome Annotation Publication
 
 Field Description
 Displays publications of the related parent analysis

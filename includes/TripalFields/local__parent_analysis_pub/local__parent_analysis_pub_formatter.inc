@@ -9,7 +9,7 @@
 class local__parent_analysis_pub_formatter extends ChadoFieldFormatter {
 
   // The default label for this field.
-  public static $default_label = 'Publication';
+  public static $default_label = 'Genome Annotation Publication';
 
   // The list of field types for which this formatter is appropriate.
   public static $field_types = array('local__parent_analysis_pub');

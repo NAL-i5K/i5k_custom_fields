@@ -17,7 +17,7 @@ class local__parent_analysis_pub extends ChadoField {
   // --------------------------------------------------------------------------
 
   // The default label for this field.
-  public static $default_label = 'Publication';
+  public static $default_label = 'Genome Annotation Publication';
 
   // The default description for this field.
   public static $default_description = 'Displays publications of the related parent analysis';

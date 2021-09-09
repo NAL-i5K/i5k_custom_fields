@@ -95,7 +95,7 @@ function i5k_custom_fields_bundle_instances_info($entity_type, $bundle) {
       'field_name' => $field_name,
       'entity_type' => $entity_type,
       'bundle' => $bundle->name,
-      'label' => 'Publication',
+      'label' => 'Genome Annotation Publication',
       'description' => 'Displays publications of the related parent analysis',
       'required' => FALSE,
       'settings' => array(
