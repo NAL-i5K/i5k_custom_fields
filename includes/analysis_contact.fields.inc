@@ -43,7 +43,7 @@ function analysis_contact_bundle_fields_info($entity_type, $bundle) {
       'id' => 'datacite:contributor',
       'name' => 'contributor',
       'cv_name' => 'dcterms',
-      'definition' => 'The contact person for the analysis. ADC Equivalent: 'Contact name'',
+      'definition' => 'The contact person for the analysis. ADC Equivalent: Contact name',
     ));
 
     // Then describe the field defined by that term.
@@ -96,7 +96,7 @@ function analysis_contact_bundle_instances_info($entity_type, $bundle) {
       'entity_type' => $entity_type,
       'bundle' => $bundle->name,
       'label' => 'Analysis Contact',
-      'description' => 'The contact person for the analysis. ADC Equivalent: 'Contact name'',
+      'description' => 'The contact person for the analysis. ADC Equivalent: Contact name',
       'required' => FALSE,
       'settings' => array(
         'term_vocabulary' => 'datacite',

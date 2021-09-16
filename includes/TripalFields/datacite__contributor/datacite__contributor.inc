@@ -20,7 +20,7 @@ class datacite__contributor extends ChadoField {
   public static $default_label = 'Analysis Contact';
 
   // The default description for this field.
-  public static $default_description = 'The contact person for the analysis. ADC Equivalent: 'Contact name'';
+  public static $default_description = 'The contact person for the analysis. ADC Equivalent: Contact name';
 
   // The default widget for this field.
   public static $default_widget = 'datacite__contributor_widget';
