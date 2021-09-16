@@ -1,0 +1,117 @@
+<?php
+
+/**
+ * implements hook_install();
+ * 
+ * Various install functions for this module
+ */
+function i5k_custom_fields_install() {
+    // Probably don't need to do anything... yet
+}
+
+/**
+ * implements hook_schema();
+ * 
+ * define the schema for custom tables used by fields in this module
+ */
+function i5k_custom_fields_schema() {
+    # TODO get the proper name of the Chado schema in case it isn't 'chado'.
+    $schema['chado.contact_dbxref'] = array(
+        'description' => t('Links a contact to dbxrefs.'),
+        'fields' => array(
+            'contact_dbxref_id' => array(
+                'description'   => t(''),
+                'type'          => 'int',
+                'size'          => 'big',
+                'not null'      => TRUE,
+            ),
+            'contact_id' => array(
+                'description'   => t('The contact to associate with the dbxref.'),
+                'type'          => 'int',
+                'size'          => 'big',
+                'not null'      => TRUE,
+            ),
+            'dbxref_id' => array(
+                'description'   => t('The dbxref to associate with the contact.'),
+                'type'          => 'int',
+                'size'          => 'big',
+                'not null'      => TRUE,
+            ),
+            'is_current' => array(
+                'description'   => t('True if this dbxref is the most up to date accession in the corresponding db. Retired accessions should set this field to false.'),
+                'type'          => 'int',
+                'size'          => 'tiny',
+                'not null'      => TRUE,
+            ),
+        ),
+        'foreign keys' => array(
+            'contact_id' => array(
+                'table' => 'chado.contact',
+                'columns' => array(
+                    'contact_id',
+                ),
+            ),
+            'dbxref_id' => array(
+                'table' => 'chado.dbxref',
+                'columns' => array(
+                    'dbxref_id',
+                ),
+            ),
+        ),
+    );
+
+    // Schema is all set up, let's return
+    return $schema;
+}
+
+/**
+ * Add the chado.contaxt_dbxref table for analysis author and contact fields.
+ */
+function i5k_custom_fields_update_7000() {
+    db_create_table(
+        'chado.contact_dbxref',
+        array(
+            'description' => t('Links a contact to dbxrefs.'),
+            'fields' => array(
+                'contact_dbxref_id' => array(
+                    'description'   => t(''),
+                    'type'          => 'int',
+                    'size'          => 'big',
+                    'not null'      => TRUE,
+                ),
+                'contact_id' => array(
+                    'description'   => t('The contact to associate with the dbxref.'),
+                    'type'          => 'int',
+                    'size'          => 'big',
+                    'not null'      => TRUE,
+                ),
+                'dbxref_id' => array(
+                    'description'   => t('The dbxref to associate with the contact.'),
+                    'type'          => 'int',
+                    'size'          => 'big',
+                    'not null'      => TRUE,
+                ),
+                'is_current' => array(
+                    'description'   => t('True if this dbxref is the most up to date accession in the corresponding db. Retired accessions should set this field to false.'),
+                    'type'          => 'int',
+                    'size'          => 'tiny',
+                    'not null'      => TRUE,
+                ),
+            ),
+            'foreign keys' => array(
+                'contact_id' => array(
+                    'table' => 'chado.contact',
+                    'columns' => array(
+                        'contact_id',
+                    ),
+                ),
+                'dbxref_id' => array(
+                    'table' => 'chado.dbxref',
+                    'columns' => array(
+                        'dbxref_id',
+                    ),
+                ),
+            ),
+        )
+    );
+}
