@@ -31,9 +31,8 @@
  *   doesn't already exist. To trigger create of fields when developing call
  *   tripal_refresh_bundle_fields() for the specific bundle.
  */
-function i5k_custom_fields_bundle_fields_info($entity_type, $bundle) {
-  $fields = array();
-
+function local__parent_analysis_pub_bundle_fields_info($entity_type, $bundle, &$fields) {
+  //dpm("local__parent_analysis_pub_bundle_fields_info");
   // Because we are expecting data housed in Chado we can use the 'data_table'
   // property of the bundle to determine if this bundle is really the one
   // we want the field to be associated with.
@@ -59,8 +58,6 @@ function i5k_custom_fields_bundle_fields_info($entity_type, $bundle) {
       ),
     );
   }
-
-  return $fields;
 }
 
 /**
@@ -85,8 +82,8 @@ function i5k_custom_fields_bundle_fields_info($entity_type, $bundle) {
  *   for any settings you use in your field. Each entry in this array will be used to
  *   create an instance of an already existing field.
  */
-function i5k_custom_fields_bundle_instances_info($entity_type, $bundle) {
-  $instances = array();
+function local__parent_analysis_pub_bundle_instances_info($entity_type, $bundle, &$instances) {
+  echo("local__parent_analysis_pub_bundle_instances_info");
   //if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
   if (isset($bundle->data_table) AND ($bundle->data_table == 'feature') AND ( ($bundle->term->name == 'mRNA') OR ($bundle->term->name == 'gene') )) {
     $field_name = 'local__parent_analysis_pub';
@@ -121,6 +118,4 @@ function i5k_custom_fields_bundle_instances_info($entity_type, $bundle) {
     );
 
   }
-
-  return $instances;
 }
