@@ -60,6 +60,43 @@ function i5k_custom_fields_schema() {
         ),
     );
 
+    $schema['chado.analysis_contact'] = array(
+        'description' => t('Links a contact to an analysis.'),
+        'fields' => array(
+            'analysis_contact_id' => array(
+                'description' => t(''),
+                'type'      => 'serial',
+                'not null'  => TRUE,
+            ),
+            'analysis_id' => array(
+                'description' => t('ID of the linked analysis.'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null'  => TRUE,
+            ),
+            'contact_id' => array(
+                'description' => t('ID of the linked contact.'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null'  => TRUE,
+            ),
+        ),
+        'foreign keys' => [
+            'analysis_id' => [
+                'table' => 'analysis',
+                'columns' => [
+                'file_id' => 'file_id',
+                ],
+            ],
+            'contact_id' => [
+                'table' => 'contact',
+                'columns' => [
+                'contact_id' => 'contact_id',
+                ],
+            ],
+        ],
+    );
+
     // Schema is all set up, let's return
     return $schema;
 }
@@ -114,4 +151,47 @@ function i5k_custom_fields_update_7000() {
             ),
         )
     );
+}
+/**
+ * Add the chado.analysis_contact linker table.
+ */
+function i5k_custom_fields_update_7001() {
+
+    $schema = [
+        'table' => 'analysis_contact',
+        'fields' => [
+            'analysis_contact_id' => [
+                'type' => 'serial',
+                'not null' => TRUE
+            ],
+            'analysis_id' => [
+                'description' => t('ID of the linked analysis.'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null'  => TRUE,
+            ],
+            'contact_id' => [
+                'description' => t('ID of the linked contact.'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null'  => TRUE,
+            ],
+        ],
+        'foreign keys' => [
+            'contact' => [
+                'table' => 'contact',
+                'columns' => [
+                    'contact_id' => 'contact_id',
+                ],
+            ],
+            'analysis' => [
+                'table' => 'analysis',
+                'columns' => [
+                    'analysis_id' => 'analysis_id',
+                ],
+
+            ],
+        ],
+    ];
+    chado_create_custom_table('analysis_contact', $schema, TRUE, NULL, FALSE);
 }
