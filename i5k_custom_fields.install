@@ -85,7 +85,7 @@ function i5k_custom_fields_schema() {
             'analysis_id' => [
                 'table' => 'analysis',
                 'columns' => [
-                'file_id' => 'file_id',
+                'analysis_id' => 'analysis_id',
                 ],
             ],
             'contact_id' => [
@@ -94,6 +94,10 @@ function i5k_custom_fields_schema() {
                 'contact_id' => 'contact_id',
                 ],
             ],
+        ],
+        'primary key' => ['analysis_contact_id'],
+        'unique keys' => [
+            'analysis_contact_c1' => ['contact_id', 'analysis_id'],
         ],
     );
 
@@ -178,20 +182,23 @@ function i5k_custom_fields_update_7001() {
             ],
         ],
         'foreign keys' => [
+            'analysis' => [
+                'table' => 'analysis',
+                'columns' => [
+                    'analysis_id' => 'analysis_id',
+                ],
+            ],
             'contact' => [
                 'table' => 'contact',
                 'columns' => [
                     'contact_id' => 'contact_id',
                 ],
             ],
-            'analysis' => [
-                'table' => 'analysis',
-                'columns' => [
-                    'analysis_id' => 'analysis_id',
-                ],
-
-            ],
         ],
+        'unique keys' => [
+            'analysis_contact_c1' => ['contact_id', 'analysis_id'],
+        ],
+        'primary key' => ['analysis_contact_id'],
     ];
     chado_create_custom_table('analysis_contact', $schema, TRUE, NULL, FALSE);
 }
