@@ -80,7 +80,7 @@ class datacite__contributor extends ChadoField {
     // attached asynchronously.
     'auto_attach' => FALSE,
     // The table in Chado that the instance maps to.
-    'chado_table' => '',
+    'chado_table' => 'analysis_contact',
     // The column of the table in Chado where the value of the field comes from.
     'chado_column' => '',
     // The base table.
@@ -99,18 +99,49 @@ class datacite__contributor extends ChadoField {
   // the user but otherwise provides no data.
   public static $no_data = FALSE;
 
-   /**
-    * @see ChadoField::load()
-    *
-    **/
+  /**
+  * @see ChadoField::load()
+  *
+  **/
 
   public function load($entity) {
-
     // ChadoFields automatically load the chado column specified in the
     // default settings above. If that is all you need then you don't even
     // need to implement this function. However, if you need to add any
     // additional data to be used in the display, you should add it here.
     parent::load($entity);
+
+    $record = $entity->chado_record;
+
+    $field = get_class($this);
+
+    // Get the contact_id associated with this analysis_id.
+    $values = array(
+      'analysis_id' => $record->analysis_id,
+    );
+    $result = chado_select_record(
+      'analysis_contact',
+      array('analysis_id', 'contact_id', 'analysis_contact_id'),
+      $values,
+    );
+    if(count($result) > 0) {
+      $values = array(
+        'contact_id' => $result[0]->contact_id,
+      );
+      // Get the contact itself
+      $contact = chado_generate_var('contact', $values);
+
+      // We need to display: Contact Person (fname, lname, other columns?)
+      $entity->{$field}['und'][0]['value'] = [
+        "schema__name" => $contact->name,
+        "schema__description" => $contact->description,
+        "entity_id" => $contact->entity_id,
+        "analysis_contact_id" => $result[0]->analysis_contact_id,
+        "analysis_id" => $result[0]->analysis_id,
+        "contact_id" => $result[0]->contact_id,
+      ];      
+    }
+
   }
 
 
@@ -139,6 +170,7 @@ class datacite__contributor extends ChadoField {
     
   public function elementInfo() {
     $field_term = $this->getFieldTermID();
+
     return array(
       $field_term => array(
         'operations' => array('eq', 'ne', 'contains', 'starts'),
