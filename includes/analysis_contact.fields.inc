@@ -31,13 +31,12 @@
  *   doesn't already exist. To trigger create of fields when developing call
  *   tripal_refresh_bundle_fields() for the specific bundle.
  */
-function analysis_contact_bundle_fields_info($entity_type, $bundle) {
-  $fields = array();
-
+function analysis_contact_bundle_fields_info($entity_type, $bundle, &$fields) {
+  print_r($bundle);
   // Because we are expecting data housed in Chado we can use the 'data_table'
   // property of the bundle to determine if this bundle is really the one
   // we want the field to be associated with.
-  if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
+  if (isset($bundle->data_table) AND ($bundle->data_table == 'analysis')) {
     // First add my term.
     tripal_insert_cvterm(array(
       'id' => 'datacite:contributor',
@@ -59,8 +58,6 @@ function analysis_contact_bundle_fields_info($entity_type, $bundle) {
       ),
     );
   }
-
-  return $fields;
 }
 
 /**
@@ -80,15 +77,15 @@ function analysis_contact_bundle_fields_info($entity_type, $bundle) {
  *   the label of the bundle (e.g. Organism) is what you see in the interface. Since the
  *   label can be changed by site admin, we suggest checking the data_table to determine
  *   if this is the entity you want to add field instances to.
+ * @param $instances
+ *   instances!
  * @return
  *   An array of field instance definitions. This is where you can define the defaults
  *   for any settings you use in your field. Each entry in this array will be used to
  *   create an instance of an already existing field.
  */
-function analysis_contact_bundle_instances_info($entity_type, $bundle) {
-  $instances = array();
-
-  if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
+function analysis_contact_bundle_instances_info($entity_type, $bundle, &$instances) {
+  if (isset($bundle->data_table) AND ($bundle->data_table == 'analysis')) {
     $field_name = 'datacite__contributor';
     $field_type = 'datacite__contributor';
     $instances[$field_name] =  array(
@@ -103,9 +100,10 @@ function analysis_contact_bundle_instances_info($entity_type, $bundle) {
         'term_name' => 'contributor',
         'term_accession' => 'contributor',
         'auto_attach' => FALSE,
-        'chado_table' => $bundle->data_table,
+        'chado_table' => $bundle->data_table . '_contact',
         'chado_column' => null,
         'base_table' => null,
+        'd' => 'seven',
       ),
       'widget' => array(
         'type' => 'datacite__contributor_widget',
@@ -121,6 +119,4 @@ function analysis_contact_bundle_instances_info($entity_type, $bundle) {
     );
 
   }
-
-  return $instances;
 }
