@@ -19,10 +19,10 @@ class datacite__contributor_formatter extends ChadoFieldFormatter {
     'setting1' => 'default_value',
   );
 
-   /**
-    * @see ChadoFieldFormatter::settingsForm()
-    *
-    **/
+  /**
+  * @see ChadoFieldFormatter::settingsForm()
+  *
+  **/
 
   public function settingsForm($view_mode, $form, &$form_state) {
 
@@ -37,6 +37,13 @@ class datacite__contributor_formatter extends ChadoFieldFormatter {
 
     // Get the settings
     $settings = $display['settings'];
+    
+    if ( !$items[0]['value'] == '') {
+      $element[] = [
+        '#type' => 'markup',
+        '#markup' => l($items[0]['value']['schema__name'],'/contact/' . $items[0]['value']['entity_id']),
+      ];
+    }    
   }
 
     /**
