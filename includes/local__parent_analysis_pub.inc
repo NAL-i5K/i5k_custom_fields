@@ -32,7 +32,6 @@
  *   tripal_refresh_bundle_fields() for the specific bundle.
  */
 function local__parent_analysis_pub_bundle_fields_info($entity_type, $bundle, &$fields) {
-  //dpm("local__parent_analysis_pub_bundle_fields_info");
   // Because we are expecting data housed in Chado we can use the 'data_table'
   // property of the bundle to determine if this bundle is really the one
   // we want the field to be associated with.
