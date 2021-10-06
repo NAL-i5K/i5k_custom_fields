@@ -1,6 +1,8 @@
 <?php
 
-# Include the field for the parent_analysis_publication
-include('includes/local__parent_analysis_pub.inc');
-
-# Include other fields later on...
+/**
+ * Include just the one all_i5k_custom_fields.inc file.
+ * That file is responsible for including the _fields.inc
+ * files for all of the fields.
+ */
+include('includes/all_i5k_custom_fields.inc');
