@@ -25,14 +25,14 @@
  *   created if it doesn't already exist, this parameter doesn't actually matter.
  *   NOTE: If you do need to determine the bundle in this hook, we suggest inspecting
  *   the data_table since the label can be changed by site administrators.
- *
+ * @param $instances
+ *   instances!
  * @return
  *   An array of field definitions. Each field in this array will be created if it
  *   doesn't already exist. To trigger create of fields when developing call
  *   tripal_refresh_bundle_fields() for the specific bundle.
  */
 function analysis_contact_bundle_fields_info($entity_type, $bundle, &$fields) {
-  print_r($bundle);
   // Because we are expecting data housed in Chado we can use the 'data_table'
   // property of the bundle to determine if this bundle is really the one
   // we want the field to be associated with.
@@ -103,7 +103,6 @@ function analysis_contact_bundle_instances_info($entity_type, $bundle, &$instanc
         'chado_table' => $bundle->data_table . '_contact',
         'chado_column' => null,
         'base_table' => null,
-        'd' => 'seven',
       ),
       'widget' => array(
         'type' => 'datacite__contributor_widget',
