@@ -25,19 +25,18 @@
  *   created if it doesn't already exist, this parameter doesn't actually matter.
  *   NOTE: If you do need to determine the bundle in this hook, we suggest inspecting
  *   the data_table since the label can be changed by site administrators.
- *
+ * @param $instances
+ *   instances!
  * @return
  *   An array of field definitions. Each field in this array will be created if it
  *   doesn't already exist. To trigger create of fields when developing call
  *   tripal_refresh_bundle_fields() for the specific bundle.
  */
-function analysis_author_bundle_fields_info($entity_type, $bundle) {
-  $fields = array();
-
+function analysis_author_bundle_fields_info($entity_type, $bundle, &$fields) {
   // Because we are expecting data housed in Chado we can use the 'data_table'
   // property of the bundle to determine if this bundle is really the one
   // we want the field to be associated with.
-  if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
+  if (isset($bundle->data_table) AND ($bundle->data_table == 'analysis')) {
     // First add my term.
     tripal_insert_cvterm(array(
       'id' => 'datacite:creator',
@@ -59,8 +58,6 @@ function analysis_author_bundle_fields_info($entity_type, $bundle) {
       ),
     );
   }
-
-  return $fields;
 }
 
 /**
@@ -80,14 +77,14 @@ function analysis_author_bundle_fields_info($entity_type, $bundle) {
  *   the label of the bundle (e.g. Organism) is what you see in the interface. Since the
  *   label can be changed by site admin, we suggest checking the data_table to determine
  *   if this is the entity you want to add field instances to.
+ * @param $instances
+ *   instances!
  * @return
  *   An array of field instance definitions. This is where you can define the defaults
  *   for any settings you use in your field. Each entry in this array will be used to
  *   create an instance of an already existing field.
  */
-function analysis_author_bundle_instances_info($entity_type, $bundle) {
-  $instances = array();
-
+function analysis_author_bundle_instances_info($entity_type, $bundle, &$instances) {
   if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
     $field_name = 'datacite__creator';
     $field_type = 'datacite__creator';
@@ -103,7 +100,7 @@ function analysis_author_bundle_instances_info($entity_type, $bundle) {
         'term_name' => 'creator',
         'term_accession' => 'creator',
         'auto_attach' => FALSE,
-        'chado_table' => $bundle->data_table,
+        'chado_table' => $bundle->data_table . '_contact',
         'chado_column' => null,
         'base_table' => null,
       ),
@@ -121,6 +118,4 @@ function analysis_author_bundle_instances_info($entity_type, $bundle) {
     );
 
   }
-
-  return $instances;
 }
