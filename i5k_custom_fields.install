@@ -101,47 +101,6 @@ function i5k_custom_fields_schema() {
         ],
     );
 
-    $schema['chado.analysis_author'] = array(
-        'description' => t('Links a contact to an analysis as an author.'),
-        'fields' => array(
-            'analysis_author_id' => array(
-                'description' => t(''),
-                'type'      => 'serial',
-                'not null'  => TRUE,
-            ),
-            'analysis_id' => array(
-                'description' => t('ID of the linked analysis.'),
-                'type'      => 'int',
-                'size'      => 'big',
-                'not null'  => TRUE,
-            ),
-            'author_id' => array(
-                'description' => t('ID of the linked contact.'),
-                'type'      => 'int',
-                'size'      => 'big',
-                'not null'  => TRUE,
-            ),
-        ),
-        'foreign keys' => [
-            'analysis_id' => [
-                'table' => 'analysis',
-                'columns' => [
-                'analysis_id' => 'analysis_id',
-                ],
-            ],
-            'author_id' => [
-                'table' => 'contact',
-                'columns' => [
-                'author_id' => 'contact_id',
-                ],
-            ],
-        ],
-        'primary key' => ['analysis_author_id'],
-        'unique keys' => [
-            'analysis_author_c1' => ['author_id', 'analysis_id'],
-        ],
-    );
-
     // Schema is all set up, let's return
     return $schema;
 }
@@ -242,50 +201,4 @@ function i5k_custom_fields_update_7001() {
         'primary key' => ['analysis_contact_id'],
     ];
     chado_create_custom_table('analysis_contact', $schema, TRUE, NULL, FALSE);
-}
-/**
- * Add the chado.analysis_author linker table.
- */
-function i5k_custom_fields_update_7002() {
-
-    $schema = [
-        'table' => 'analysis_author',
-        'fields' => [
-            'analysis_author_id' => [
-                'type' => 'serial',
-                'not null' => TRUE
-            ],
-            'analysis_id' => [
-                'description' => t('ID of the linked analysis.'),
-                'type'      => 'int',
-                'size'      => 'big',
-                'not null'  => TRUE,
-            ],
-            'author_id' => [
-                'description' => t('ID of the linked contact.'),
-                'type'      => 'int',
-                'size'      => 'big',
-                'not null'  => TRUE,
-            ],
-        ],
-        'foreign keys' => [
-            'analysis' => [
-                'table' => 'analysis',
-                'columns' => [
-                    'analysis_id' => 'analysis_id',
-                ],
-            ],
-            'contact' => [
-                'table' => 'contact',
-                'columns' => [
-                    'author_id' => 'contact_id',
-                ],
-            ],
-        ],
-        'unique keys' => [
-            'analysis_author_c1' => ['author_id', 'analysis_id'],
-        ],
-        'primary key' => ['analysis_author_id'],
-    ];
-    chado_create_custom_table('analysis_author', $schema, TRUE, NULL, FALSE);
 }
