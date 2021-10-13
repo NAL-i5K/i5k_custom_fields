@@ -80,6 +80,12 @@ function i5k_custom_fields_schema() {
                 'size'      => 'big',
                 'not null'  => TRUE,
             ),
+            'type_id' => array(
+                'description' => t('Type of analysis contact (from cvterm.cvterm_id)'),
+                'type'          => 'int',
+                'size'          => 'big',
+                'not null'      => TRUE,
+            ),
         ),
         'foreign keys' => [
             'analysis_id' => [
@@ -201,4 +207,61 @@ function i5k_custom_fields_update_7001() {
         'primary key' => ['analysis_contact_id'],
     ];
     chado_create_custom_table('analysis_contact', $schema, TRUE, NULL, FALSE);
+}
+/**
+ * Add column 'type_id' to chado.analysis_contact
+ */
+function i5k_custom_fields_update_7002() {
+    $schema = [
+        'table' => 'analysis_contact',
+        'fields' => [
+            'analysis_contact_id' => [
+                'type' => 'serial',
+                'not null' => TRUE
+            ],
+            'analysis_id' => [
+                'description' => t('ID of the linked analysis.'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null'  => TRUE,
+            ],
+            'contact_id' => [
+                'description' => t('ID of the linked contact.'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null'  => TRUE,
+            ],
+            'type_id' => [
+                'description' => t('Type of analysis contact (from cvterm.cvterm_id)'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null' => TRUE,
+            ],
+        ],
+        'foreign keys' => [
+            'analysis' => [
+                'table' => 'analysis',
+                'columns' => [
+                    'analysis_id' => 'analysis_id',
+                ],
+            ],
+            'contact' => [
+                'table' => 'contact',
+                'columns' => [
+                    'contact_id' => 'contact_id',
+                ],
+            ],
+            'cvterm' => [
+                'table' => 'cvterm',
+                'columns' => [
+                    'type_id' => 'cvterm_id'
+                ],
+            ],
+        ],
+        'unique keys' => [
+            'analysis_contact_c1' => ['contact_id', 'analysis_id', 'type_id'],
+        ],
+        'primary key' => ['analysis_contact_id'],
+    ];
+    chado_create_custom_table('analysis_contact', $schema, FALSE, NULL, FALSE);
 }
