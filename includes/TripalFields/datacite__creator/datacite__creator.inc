@@ -80,7 +80,7 @@ class datacite__creator extends ChadoField {
     // attached asynchronously.
     'auto_attach' => FALSE,
     // The table in Chado that the instance maps to.
-    'chado_table' => '',
+    'chado_table' => 'analysis_author',
     // The column of the table in Chado where the value of the field comes from.
     'chado_column' => '',
     // The base table.
@@ -105,12 +105,46 @@ class datacite__creator extends ChadoField {
     **/
 
   public function load($entity) {
-
     // ChadoFields automatically load the chado column specified in the
     // default settings above. If that is all you need then you don't even
     // need to implement this function. However, if you need to add any
     // additional data to be used in the display, you should add it here.
     parent::load($entity);
+
+    $record = $entity->chado_record;
+
+    $field = get_class($this);
+
+    // Get the author_id associated with this analysis_id.
+    $values = array(
+      'analysis_id' => $record->analysis_id,
+    );
+    $results = chado_select_record(
+      'analysis_author',
+      array('analysis_id', 'author_id', 'analysis_author_id'),
+      $values,
+    );
+    if(count($results) > 0) {
+      $delta = 0;
+      foreach($results as $result) {
+        $values = array(
+          'contact_id' => $result->author_id,
+        );
+        // Get the contact itself
+        $contact = chado_generate_var('contact', $values);
+  
+        // We need to display: Contact Person (fname, lname, other columns?)
+        $entity->{$field}['und'][$delta]['value'] = [
+          "schema__name" => $contact->name,
+          "schema__description" => $contact->description,
+          "entity_id" => $contact->entity_id,
+          "analysis_author_id" => $result->analysis_author_id,
+          "analysis_id" => $result->analysis_id,
+          "author_id" => $result->author_id,
+        ];    
+        $delta++;  
+      }
+    }
   }
 
 
