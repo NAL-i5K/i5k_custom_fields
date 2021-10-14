@@ -34,7 +34,7 @@ function i5k_custom_fields_bundle_fields_info($entity_type, $bundle) {
     analysis_contact_bundle_fields_info($entity_type, $bundle, $fields);
 
     // Analysis Author
-    analysis_author_bundle_fields_info($entity_type, $bundle, $fields);
+    //analysis_author_bundle_fields_info($entity_type, $bundle, $fields);
 
     return $fields;
 }
@@ -51,7 +51,7 @@ function i5k_custom_fields_bundle_instances_info($entity_type, $bundle) {
     analysis_contact_bundle_instances_info($entity_type, $bundle, $instances);
 
     // Analysis Author
-    analysis_author_bundle_instances_info($entity_type, $bundle, $instances);
+    //analysis_author_bundle_instances_info($entity_type, $bundle, $instances);
 
     return $instances;
 }
