@@ -85,7 +85,7 @@ function analysis_author_bundle_fields_info($entity_type, $bundle, &$fields) {
  *   create an instance of an already existing field.
  */
 function analysis_author_bundle_instances_info($entity_type, $bundle, &$instances) {
-  if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
+  if (isset($bundle->data_table) AND ($bundle->data_table == 'analysis')) {
     $field_name = 'datacite__creator';
     $field_type = 'datacite__creator';
     $instances[$field_name] =  array(
