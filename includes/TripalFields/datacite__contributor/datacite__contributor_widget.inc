@@ -48,7 +48,15 @@ class datacite__contributor_widget extends ChadoFieldWidget {
     $contact_id = '';
     $name = '';
     $value = '';
-
+    
+    // Get the type_id as found in the cvterm table
+    $cvterm_info = array(
+      'name' => 'contributor',
+      'cv_id' => ['name' => 'dcterms'],
+    );
+    $cvterm = tripal_get_cvterm($cvterm_info);
+    $type_id = $cvterm->cvterm_id;
+    
     // TODO don't hard code this
     //$name_term = chado_get_semweb_term('contact', 'name');
     $name_term = 'schema__name';
@@ -66,6 +74,7 @@ class datacite__contributor_widget extends ChadoFieldWidget {
       $fk_value = $items[$delta]['value']['analysis_id'];
       $record_id = $items[$delta]['value']['analysis_contact_id'];
       $contact_id = $items[$delta]['value']['contact_id'];
+      $type_id = $items[$delta]['value']['type_id'];
     }
 
     // Check $form_state['values'] to see if an AJAX call set the values.
@@ -92,6 +101,10 @@ class datacite__contributor_widget extends ChadoFieldWidget {
     $widget['chado-' . $field_table . '__contact_id'] = [
       '#type' => 'value',
       '#default_value' => $contact_id,
+    ];
+    $widget['chado-' . $field_table . '__type_id'] = [
+      '#type' => 'value',
+      '#default_value' => $type_id,
     ];
 
     $widget['name'] = [
