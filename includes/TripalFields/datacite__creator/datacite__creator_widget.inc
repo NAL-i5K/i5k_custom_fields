@@ -26,7 +26,7 @@ class datacite__creator_widget extends ChadoFieldWidget {
 
     $field_name = $this->field['field_name'];
     $base_table = 'analysis';
-    $field_table = 'analysis_author';
+    $field_table = 'analysis_contact';
     $schema = chado_get_schema($field_table);
 
     $pkey = $schema['primary key'][0];
@@ -41,12 +41,17 @@ class datacite__creator_widget extends ChadoFieldWidget {
     $contact_id = '';
     $name = '';
 
+    // Get the cvterm associated with datacite.creator
+    $cvterm = tripal_get_cvterm([
+      'name' => 'creator',
+      'cv_id' => ['name' => 'dcterms'],
+    ]);
+    $type_id = $cvterm->cvterm_id;
+    
     $name_term = 'schema__name';
 
     // If the field already has a value then it will come through the $items
     // array.  This happens when editing an existing record.
-    echo "got here<br />";
-    dpm($items);
     if (count($items) > 0 and array_key_exists($delta, $items) and strlen($items[$delta]['value'] > 0)) {
       echo "Delta: " . $delta . "<br />";
       $name = array_key_exists($name_term, $items[$delta]['value']) ? $items[$delta]['value'][$name_term] : $name;
@@ -57,8 +62,9 @@ class datacite__creator_widget extends ChadoFieldWidget {
       */
       // Manually do these I guess
       $fk_value = $items[$delta]['value']['analysis_id'];
-      $record_id = $items[$delta]['value']['analysis_author_id'];
-      $author_id = $items[$delta]['value']['author_id'];
+      $record_id = $items[$delta]['value']['analysis_contact_id'];
+      $contact_id = $items[$delta]['value']['contact_id'];
+      $type_id = $items[$delta]['value']['type_id'];
     }
 
     // Check $form_state['values'] to see if an AJAX call set the values.
@@ -82,9 +88,13 @@ class datacite__creator_widget extends ChadoFieldWidget {
       '#type' => 'value',
       '#default_value' => $fk_value,
     ];
-    $widget['chado-' . $field_table . '__author_id'] = [
+    $widget['chado-' . $field_table . '__contact_id'] = [
       '#type' => 'value',
-      '#default_value' => $author_id,
+      '#default_value' => $contact_id,
+    ];
+    $widget['chado-' . $field_table . '__type_id'] = [
+      '#type' => 'value',
+      '#default_value' => $type_id,
     ];
 
     $widget['name'] = [
@@ -101,6 +111,38 @@ class datacite__creator_widget extends ChadoFieldWidget {
   *
   **/
   public function validate($element, $form, &$form_state, $langcode, $delta) {
+    $field_name = $this->field['field_name'];
+    $field_type = $this->field['type'];
+    //$base_table = $this->instance['settings']['base_table'];
+    $base_table = 'analysis';  
+    //$field_table = $this->instance['settings']['chado_table'];
+    $field_table = 'analysis_contact';
+    //$chado_column = $this->instance['settings']['chado_column'];
+    $chado_column = 'contact_id';
+    $instance = $this->instance;
+    // Get information about this contact linker table.
+    $schema = chado_get_schema($field_table);
+    $pkey = $schema['primary key'][0];
+
+    $lfkey_field = key($schema['foreign keys'][$base_table]['columns']);
+
+    // Get the name from the form state.
+    $name = $form_state['values'][$field_name]['und'][$delta]['name'];
+
+    // If the user provided a name then we want to set the foreign key
+    // value to be the chado_record_id
+    if ($name) {
+      $contact = chado_generate_var('contact', ['name' => $name]);
+      if ($contact) {
+        $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__contact_id'] = $contact->contact_id;
+        $form_state['values'][$field_name]['und'][$delta]['value'] = $name;
+      }
+    }
+    // If no name is provided then we want to set the field for deletion.
+    else {
+      $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__' . $lfkey_field] = '';
+      $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__contact_id'] = '';
+    }
   }
 
    /**
