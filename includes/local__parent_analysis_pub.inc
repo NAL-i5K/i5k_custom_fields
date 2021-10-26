@@ -82,7 +82,6 @@ function local__parent_analysis_pub_bundle_fields_info($entity_type, $bundle, &$
  *   create an instance of an already existing field.
  */
 function local__parent_analysis_pub_bundle_instances_info($entity_type, $bundle, &$instances) {
-  echo("local__parent_analysis_pub_bundle_instances_info");
   //if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
   if (isset($bundle->data_table) AND ($bundle->data_table == 'feature') AND ( ($bundle->term->name == 'mRNA') OR ($bundle->term->name == 'gene') )) {
     $field_name = 'local__parent_analysis_pub';

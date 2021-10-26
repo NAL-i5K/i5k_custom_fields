@@ -53,7 +53,6 @@ class datacite__creator_widget extends ChadoFieldWidget {
     // If the field already has a value then it will come through the $items
     // array.  This happens when editing an existing record.
     if (count($items) > 0 and array_key_exists($delta, $items) and strlen($items[$delta]['value'] > 0)) {
-      echo "Delta: " . $delta . "<br />";
       $name = array_key_exists($name_term, $items[$delta]['value']) ? $items[$delta]['value'][$name_term] : $name;
       /*
       $fk_value = tripal_get_field_item_keyval($items, $delta, 'chado-' . $field_table . '__' . $fkey_lcolumn, $fk_value);

@@ -118,7 +118,6 @@ class local__parent_analysis_pub extends ChadoField {
 
     $field = get_class($this);
 
-    #dpm($record); // mRNA type
     // Expand the object to include the relationships
     // I'm not sure if I need this part or if it needs to be expanded. PUMPKIN
     $options =
