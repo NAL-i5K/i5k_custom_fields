@@ -80,7 +80,7 @@ class datacite__creator extends ChadoField {
     // attached asynchronously.
     'auto_attach' => FALSE,
     // The table in Chado that the instance maps to.
-    'chado_table' => 'analysis_author',
+    'chado_table' => 'analysis_contact',
     // The column of the table in Chado where the value of the field comes from.
     'chado_column' => '',
     // The base table.
@@ -115,20 +115,27 @@ class datacite__creator extends ChadoField {
 
     $field = get_class($this);
 
-    // Get the author_id associated with this analysis_id.
+    // Get the cvterm associated with datacite.creator
+    $cvterm = tripal_get_cvterm([
+      'name' => 'creator',
+      'cv_id' => ['name' => 'dcterms'],
+    ]);
+    $cvterm_id = $cvterm->cvterm_id;
+    // Get the contact_id(s) associated with this analysis_id.
     $values = array(
       'analysis_id' => $record->analysis_id,
+      'type_id'     => $cvterm_id,
     );
     $results = chado_select_record(
-      'analysis_author',
-      array('analysis_id', 'author_id', 'analysis_author_id'),
+      'analysis_contact',
+      array('analysis_id', 'contact_id', 'analysis_contact_id', 'type_id'),
       $values,
     );
     if(count($results) > 0) {
       $delta = 0;
       foreach($results as $result) {
         $values = array(
-          'contact_id' => $result->author_id,
+          'contact_id' => $result->contact_id,
         );
         // Get the contact itself
         $contact = chado_generate_var('contact', $values);
@@ -138,9 +145,10 @@ class datacite__creator extends ChadoField {
           "schema__name" => $contact->name,
           "schema__description" => $contact->description,
           "entity_id" => $contact->entity_id,
-          "analysis_author_id" => $result->analysis_author_id,
+          "analysis_contact_id" => $result->analysis_contact_id,
           "analysis_id" => $result->analysis_id,
-          "author_id" => $result->author_id,
+          "contact_id" => $result->contact_id,
+          "type_id" => $result->type_id,
         ];    
         $delta++;  
       }
