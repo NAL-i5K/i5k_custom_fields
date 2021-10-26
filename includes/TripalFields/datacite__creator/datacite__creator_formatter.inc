@@ -34,16 +34,18 @@ class datacite__creator_formatter extends ChadoFieldFormatter {
     **/
 
   public function view(&$element, $entity_type, $entity, $langcode, $items, $display) {
-dpm($items);
     // Get the settings
     $settings = $display['settings'];
-    $delta = 0;
-    while(array_key_exists($delta,$items)) {
-      $element[$delta] = [
-        '#type' => 'markup',
-        '#markup' => l($items[$delta]['value']['schema__name'],'/contact/' . $items[$delta]['value']['entity_id']),
-      ];
-      $delta++; 
+    // Test for data
+    if ( !$items[0]['value'] == '') {
+      $delta = 0;
+      while(array_key_exists($delta,$items)) {
+        $element[$delta] = [
+          '#type' => 'markup',
+          '#markup' => l($items[$delta]['value']['schema__name'],'/contact/' . $items[$delta]['value']['entity_id']),
+        ];
+        $delta++; 
+      }
     }
   }
 
