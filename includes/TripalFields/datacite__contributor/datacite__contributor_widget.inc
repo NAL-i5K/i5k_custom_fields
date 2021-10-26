@@ -152,6 +152,8 @@ class datacite__contributor_widget extends ChadoFieldWidget {
     else {
       $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__' . $lfkey_field] = '';
       $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__contact_id'] = '';
+      $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__analysis_id'] = '';
+      $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__type_id'] = '';
     }
   }
 
