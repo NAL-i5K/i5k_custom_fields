@@ -130,15 +130,17 @@ class datacite__creator_widget extends ChadoFieldWidget {
 
     // If the user provided a name then we want to set the foreign key
     // value to be the chado_record_id
-    if ($name) {
-      $contact = chado_generate_var('contact', ['name' => $name]);
-      if ($contact) {
-        $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__contact_id'] = $contact->contact_id;
-        $form_state['values'][$field_name]['und'][$delta]['value'] = $name;
-      }
+    if ($name AND $contact = chado_generate_var('contact', ['name' => $name])) {
+      $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__contact_id'] = $contact->contact_id;
+      $form_state['values'][$field_name]['und'][$delta]['value'] = $name;
     }
-    // If no name is provided then we want to set the field for deletion.
+    // If no name is provided or the contact doesn't exist then we want to set the field for deletion.
     else {
+      dpm($form_state);
+      if (!$form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__contact_id'] AND 
+      strlen($name) > 0) {
+        form_set_error($form_state['values'][$field_name]['und'][$delta]['name'],'Author ' . $name . ' does not exist. Please select an existing contact or add your contact first.');
+      }
       $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__' . $lfkey_field] = '';
       $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__contact_id'] = '';
       $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__analysis_id'] = '';
@@ -146,7 +148,7 @@ class datacite__creator_widget extends ChadoFieldWidget {
     }
   }
 
-   /**
+  /**
   * @see ChadoFieldWidget::submit()
   *
   **/
