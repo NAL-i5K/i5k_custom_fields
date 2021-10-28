@@ -7,13 +7,13 @@
  * Data:
  * Assumptions:
  */
-class datacite__contributor_widget extends ChadoFieldWidget {
+class datacite__creator_widget extends ChadoFieldWidget {
 
   // The default label for this field.
-  public static $default_label = 'Analysis Contact';
+  public static $default_label = 'Analysis Authors';
 
   // The list of field types for which this formatter is appropriate.
-  public static $field_types = array('datacite__contributor');
+  public static $field_types = array('datacite__creator');
 
 
  /**
@@ -25,15 +25,8 @@ class datacite__contributor_widget extends ChadoFieldWidget {
     parent::form($widget, $form, $form_state, $langcode, $items, $delta, $element);
 
     $field_name = $this->field['field_name'];
-    $field_type = $this->field['type'];
-    //$base_table = $this->instance['settings']['base_table'];
     $base_table = 'analysis';
-    //$field_table = $this->instance['settings']['chado_table'];
     $field_table = 'analysis_contact';
-    //$chado_column = $this->instance['settings']['chado_column'];
-    $chado_column = 'contact_id';
-    $instance = $this->instance;
-    // Get the FK column that links to the base table.
     $schema = chado_get_schema($field_table);
 
     $pkey = $schema['primary key'][0];
@@ -42,23 +35,19 @@ class datacite__contributor_widget extends ChadoFieldWidget {
 
     $fkey_rcolumn = $schema['foreign keys'][$base_table]['columns'][$fkey_lcolumn];
 
-    // Get the field defaults.
+    // Get the field defaults
     $record_id = '';
     $fk_value = (array_key_exists('#entity', $element) and $element['#entity']) ? $element['#entity']->chado_record_id : NULL;
     $contact_id = '';
     $name = '';
-    $value = '';
-    
-    // Get the type_id as found in the cvterm table
-    $cvterm_info = array(
-      'name' => 'contributor',
+
+    // Get the cvterm associated with datacite.creator
+    $cvterm = tripal_get_cvterm([
+      'name' => 'creator',
       'cv_id' => ['name' => 'dcterms'],
-    );
-    $cvterm = tripal_get_cvterm($cvterm_info);
+    ]);
     $type_id = $cvterm->cvterm_id;
     
-    // TODO don't hard code this
-    //$name_term = chado_get_semweb_term('contact', 'name');
     $name_term = 'schema__name';
 
     // If the field already has a value then it will come through the $items
@@ -109,7 +98,7 @@ class datacite__contributor_widget extends ChadoFieldWidget {
 
     $widget['name'] = [
       '#type' => 'textfield',
-      '#title' => t('Contact'),
+      '#title' => t('Author(s)'),
       '#default_value' => $name,
       '#autocomplete_path' => 'admin/tripal/storage/chado/auto_name/contact',
       '#maxlength' => 100000,
@@ -141,15 +130,17 @@ class datacite__contributor_widget extends ChadoFieldWidget {
 
     // If the user provided a name then we want to set the foreign key
     // value to be the chado_record_id
-    if ($name) {
-      $contact = chado_generate_var('contact', ['name' => $name]);
-      if ($contact) {
-        $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__contact_id'] = $contact->contact_id;
-        $form_state['values'][$field_name]['und'][$delta]['value'] = $name;
-      }
+    if ($name AND $contact = chado_generate_var('contact', ['name' => $name])) {
+      $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__contact_id'] = $contact->contact_id;
+      $form_state['values'][$field_name]['und'][$delta]['value'] = $name;
     }
-    // If no name is provided then we want to set the field for deletion.
+    // If no name is provided or the contact doesn't exist then we want to set the field for deletion.
     else {
+      dpm($form_state);
+      if (!$form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__contact_id'] AND 
+      strlen($name) > 0) {
+        form_set_error($form_state['values'][$field_name]['und'][$delta]['name'],'Author ' . $name . ' does not exist. Please select an existing contact or add your contact first.');
+      }
       $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__' . $lfkey_field] = '';
       $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__contact_id'] = '';
       $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__analysis_id'] = '';
@@ -165,14 +156,3 @@ class datacite__contributor_widget extends ChadoFieldWidget {
   }
 
 }
-
-// /**
-//  * An Ajax callback for the pub widget. Borrowed from schema__publication_widget.inc
-//  */
-// function datacite__contributor_widget_form_ajax_callback($form, $form_state) {
-
-//   $field_name = $form_state['triggering_element']['#parents'][0];
-//   $delta = $form_state['triggering_element']['#parents'][2];
-
-//   return $form[$field_name]['und'][$delta];
-// }

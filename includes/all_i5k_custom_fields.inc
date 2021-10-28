@@ -22,6 +22,7 @@
 // Include the necessary field files
 include('local__parent_analysis_pub.inc');
 include('analysis_contact.fields.inc');
+include('analysis_author.fields.inc');
 
 function i5k_custom_fields_bundle_fields_info($entity_type, $bundle) {
     $fields = array();
@@ -32,6 +33,8 @@ function i5k_custom_fields_bundle_fields_info($entity_type, $bundle) {
     // Analysis Contact
     analysis_contact_bundle_fields_info($entity_type, $bundle, $fields);
 
+    // Analysis Author
+    analysis_author_bundle_fields_info($entity_type, $bundle, $fields);
 
     return $fields;
 }
@@ -47,6 +50,8 @@ function i5k_custom_fields_bundle_instances_info($entity_type, $bundle) {
     //include('analysis_contact.fields.inc');
     analysis_contact_bundle_instances_info($entity_type, $bundle, $instances);
 
+    // Analysis Author
+    analysis_author_bundle_instances_info($entity_type, $bundle, $instances);
 
     return $instances;
 }

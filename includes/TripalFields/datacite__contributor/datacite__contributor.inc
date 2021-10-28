@@ -115,13 +115,20 @@ class datacite__contributor extends ChadoField {
 
     $field = get_class($this);
 
+    // Get the cvterm associated with datacite.contributor
+    $cvterm = tripal_get_cvterm([
+      'name' => 'contributor',
+      'cv_id' => ['name' => 'dcterms'],
+    ]);
+    $cvterm_id = $cvterm->cvterm_id;
     // Get the contact_id associated with this analysis_id.
     $values = array(
       'analysis_id' => $record->analysis_id,
+      'type_id'     => $cvterm_id,
     );
     $result = chado_select_record(
       'analysis_contact',
-      array('analysis_id', 'contact_id', 'analysis_contact_id'),
+      array('analysis_id', 'contact_id', 'analysis_contact_id', 'type_id'),
       $values,
     );
     if(count($result) > 0) {
@@ -139,6 +146,7 @@ class datacite__contributor extends ChadoField {
         "analysis_contact_id" => $result[0]->analysis_contact_id,
         "analysis_id" => $result[0]->analysis_id,
         "contact_id" => $result[0]->contact_id,
+        "type_id" => $result[0]->type_id,
       ];      
     }
 
