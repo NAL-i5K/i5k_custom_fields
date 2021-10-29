@@ -1,0 +1,20 @@
+Field Label
+Contact Identifier
+
+Field Description
+One or more unique identifiers
+
+Module Name
+contact_identifier
+
+Database name
+local (probably)
+
+Controlled Vocabulary
+EDAM
+
+Controlled Vocabulary Term
+identifier
+
+Accession (ints for bio CVs, strings for semantic)
+data:0842
