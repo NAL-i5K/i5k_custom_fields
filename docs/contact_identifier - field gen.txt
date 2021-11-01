@@ -2,19 +2,19 @@ Field Label
 Contact Identifier
 
 Field Description
-One or more unique identifiers
+One or more values to uniquely identify a contact
 
 Module Name
 contact_identifier
 
-Database name
-local (probably)
+Database Name
+datacite
 
 Controlled Vocabulary
-EDAM
+dcterms
 
 Controlled Vocabulary Term
-identifier
+nameIdentifier
 
 Accession (ints for bio CVs, strings for semantic)
-data:0842
+nameIdentifier
