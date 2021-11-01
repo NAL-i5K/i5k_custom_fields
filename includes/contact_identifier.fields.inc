@@ -37,7 +37,7 @@ function contact_identifier_bundle_fields_info($entity_type, $bundle) {
   // Because we are expecting data housed in Chado we can use the 'data_table'
   // property of the bundle to determine if this bundle is really the one
   // we want the field to be associated with.
-  if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
+  if (isset($bundle->data_table) AND ($bundle->data_table == 'contact')) {
     // First add my term.
     tripal_insert_cvterm(array(
       'id' => 'datacite:nameIdentifier',
@@ -52,7 +52,7 @@ function contact_identifier_bundle_fields_info($entity_type, $bundle) {
     $fields[$field_name] = array(
       'field_name' => $field_name,
       'type' => $field_type,
-      'cardinality' => 1,
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
       'locked' => FALSE,
       'storage' => array(
         'type' => 'field_chado_storage',
@@ -88,7 +88,7 @@ function contact_identifier_bundle_fields_info($entity_type, $bundle) {
 function contact_identifier_bundle_instances_info($entity_type, $bundle) {
   $instances = array();
 
-  if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
+  if (isset($bundle->data_table) AND ($bundle->data_table == 'contact')) {
     $field_name = 'datacite__nameidentifier';
     $field_type = 'datacite__nameidentifier';
     $instances[$field_name] =  array(
