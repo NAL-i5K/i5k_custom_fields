@@ -80,7 +80,7 @@ class datacite__nameidentifier extends ChadoField {
     // attached asynchronously.
     'auto_attach' => FALSE,
     // The table in Chado that the instance maps to.
-    'chado_table' => '',
+    'chado_table' => 'contact_dbxref',
     // The column of the table in Chado where the value of the field comes from.
     'chado_column' => '',
     // The base table.
@@ -111,6 +111,67 @@ class datacite__nameidentifier extends ChadoField {
     // need to implement this function. However, if you need to add any
     // additional data to be used in the display, you should add it here.
     parent::load($entity);
+
+    $record = $entity->chado_record;
+    $field = get_class($this);
+
+    // Values we are looking for:
+    // db_id, accession, contact_id
+    /* Values we are looking for
+     *  - contact_id          (from $record)
+     *  - dbxref_id(s)        (from chado.contact_dbxref)
+     *  - accession           (from chado.dbxref where dbxref_id = this one)
+     *  - db_id               (from chado.dbxref where dbxref_id = this one)
+     *  - (database) name     (from chado.db where db_id = chado.dbxref.db_id = this one)
+     *  - urlprefix           (from chado.db where db_id = chado.dbxref.db_id = this one)
+     *  - url                 (from chado.db where db_id = chado.dbxref.db_id = this one)
+     */
+
+    // Get any associated dbxref_ids from chado.contact_dbxref
+    $dbxref_ids = chado_select_record(
+      'contact_dbxref',
+      array('dbxref_id'),
+      array('contact_id' => $record->contact_id)
+    );
+    if (!empty($dbxref_ids)) {
+      $delta = 0;
+      // Fetch the accessions, db_ids, and database names for each dbxref_id
+      foreach ($dbxref_ids as $dbxref_id) {
+        dpm($dbxref_id);
+        $dbxref = chado_select_record(
+          'dbxref',
+          array('accession', 'db_id'),
+          array('dbxref_id' => $dbxref_id->dbxref_id)
+        );
+        // Using the db_id, get name, urlprefix, and url
+        foreach($dbxref as $db) {
+          $db_info = chado_select_record(
+            'db',
+            array('name', 'urlprefix', 'url'),
+            array('db_id' => $db->db_id)
+          );
+        }
+
+        /**
+         * Values to pass
+         *  - accession
+         *  - database name
+         *  - urlprefix
+         *  - url
+         *  ? db_id
+         *  ? dbxref_id
+         */
+        $entity->{$field}['und'][$delta]['value'] = [
+          "accession" => $db->accession,
+          "database" => $db_info[0]->name,
+          "urlprefix" => $db_info[0]->urlprefix,
+          "url" => $db_info[0]->url,
+          "db_id" => $db->db_id,
+          "dbxref_id" => $dbxref_id->dbxref_id,
+        ];
+        $delta++;
+      }
+    }
   }
 
 
