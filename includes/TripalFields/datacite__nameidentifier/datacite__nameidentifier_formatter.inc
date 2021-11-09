@@ -37,6 +37,23 @@ class datacite__nameidentifier_formatter extends ChadoFieldFormatter {
 
     // Get the settings
     $settings = $display['settings'];
+    // Test for data
+    if ( !$items[0]['value'] == '') {
+      $delta = 0;
+      while(array_key_exists($delta,$items)) {
+        $urlprefix = $items[$delta]['value']['urlprefix'];
+        $url = $items[$delta]['value']['url'];
+        // Craft the final URL
+        $final_url = preg_replace('/\{accession\}/', $items[$delta]['value']['accession'], $urlprefix, -1, $acc_count);
+
+        $element[$delta] = [
+          '#type' => 'markup',
+          '#markup' => l($items[$delta]['value']['database'] .
+                        ': ' . $items[$delta]['value']['accession']    ,$final_url),
+        ];
+        $delta++; 
+      }
+    }
   }
 
     /**
