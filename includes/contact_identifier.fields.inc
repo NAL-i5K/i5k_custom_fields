@@ -31,8 +31,7 @@
  *   doesn't already exist. To trigger create of fields when developing call
  *   tripal_refresh_bundle_fields() for the specific bundle.
  */
-function contact_identifier_bundle_fields_info($entity_type, $bundle) {
-  $fields = array();
+function contact_identifier_bundle_fields_info($entity_type, $bundle, &$fields) {
 
   // Because we are expecting data housed in Chado we can use the 'data_table'
   // property of the bundle to determine if this bundle is really the one
@@ -85,8 +84,7 @@ function contact_identifier_bundle_fields_info($entity_type, $bundle) {
  *   for any settings you use in your field. Each entry in this array will be used to
  *   create an instance of an already existing field.
  */
-function contact_identifier_bundle_instances_info($entity_type, $bundle) {
-  $instances = array();
+function contact_identifier_bundle_instances_info($entity_type, $bundle, &$instances) {
 
   if (isset($bundle->data_table) AND ($bundle->data_table == 'contact')) {
     $field_name = 'datacite__nameidentifier';
