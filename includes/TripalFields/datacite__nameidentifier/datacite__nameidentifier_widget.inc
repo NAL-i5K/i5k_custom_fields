@@ -23,6 +23,124 @@ class datacite__nameidentifier_widget extends ChadoFieldWidget {
 
   public function form(&$widget, &$form, &$form_state, $langcode, $items, $delta, $element) {
     parent::form($widget, $form, $form_state, $langcode, $items, $delta, $element);
+
+    $field_name = $this->field['field_name'];
+    $base_table = 'contact';
+    $field_table = 'contact_dbxref';
+    $schema = chado_get_schema($field_table);
+    
+    $pkey = $schema['primary key'][0];
+    $fkey_lcolumn = key($schema['foreign keys'][$base_table]['columns']);
+
+    $fkey_rcolumn = $schema['foreign keys'][$base_table]['columns'][$fkey_lcolumn];
+    // Get the field defaults
+    $record_id = '';
+    $fk_value = (array_key_exists('#entity', $element) and $element['#entity']) ? $element['#entity']->chado_record_id : NULL;
+
+    // Get the cvterm associated with datacite__nameidentifier
+    $cvterm = tripal_get_cvterm([
+      'name' => 'nameIdentifier',
+      'cv_id' => ['name' => 'dcterms'],
+    ]);
+    $type_id = $cvterm->cvterm_id;
+    $name_term = 'schema__name';
+
+    // Set some empty defaults
+    $accession = '';
+    $database = '';
+    $urlprefix = '';
+    $url = '';
+    $db_id = '';
+    $dbxref_id = '';
+
+
+    // If the field already has a value then it will come through the $items
+    // array. This happens when editing an existing record.
+    // @todo what is the third thing here trying to do? $items[$delta]['value'] is an array...
+    //dpm($items);
+    if (count($items) > 0 and array_key_exists($delta, $items) and strlen($items[$delta]['value'] > 0)) {
+      /**
+       * values we expect here:
+       *  - accession
+       *  - database (name)
+       *  - urlprefix
+       *  - url
+       *  - db_id
+       */
+      //$fk_value = $items[$delta]['value']['contact_id'];
+      //$record_id = $items[$delta]['value']['contact_dbxref_id'];
+      //$contact_id = $items[$delta]['value']['contact_id'];
+
+      // Other useful values
+      $accession = $items[$delta]['value']['accession'];
+      $database = $items[$delta]['value']['database'];
+      $urlprefix = $items[$delta]['value']['urlprefix'];
+      $url = $items[$delta]['value']['url'];
+      $db_id = $items[$delta]['value']['db_id'];
+      $dbxref_id = $items[$delta]['value']['dbxref_id'];
+    }
+    //dpm($form_state);
+    // Check $form_state['values'] to see if an AJAX call set the values.
+    if (array_key_exists('values', $form_state) AND array_key_exists($field_name, $form_state['values'])) {
+      $accession    = $form_state['values'][$field_name]['und'][$delta]['accession'];
+      $database     = $form_state['values'][$field_name]['und'][$delta]['database'];
+      $urlprefix    = $form_state['values'][$field_name]['und'][$delta]['urlprefix'];
+      $url          = $form_state['values'][$field_name]['und'][$delta]['url'];
+      $db_id        = $form_state['values'][$field_name]['und'][$delta]['db_id'];
+      $dbxref_id    = $form_state['values'][$field_name]['und'][$delta]['dbxref_id'];
+    }
+  
+    // We have all the values we need, so we can build the form.
+    $widget['value'] = [
+      '#type' => 'value',
+      '#value' => array_key_exists($delta, $items) ? $items[$delta]['value'] : '',
+    ];
+
+    $widget['chado-' . $field_table . '__' . $pkey] = [
+      '#type' => 'value',
+      '#default_value' => $fk_value,
+    ];
+
+    $widget['chado-' . $field_table . '__' . $fkey_lcolumn] = [
+      '#type' => 'value',
+      '#default_value' => $fk_value,
+    ];
+
+    $widget['chado-' . $field_table . '__dbxref_id'] = [
+      '#type' => 'value',
+      '#default_value' => $dbxref_id,
+    ];
+
+    $widget['database'] = [
+      '#type' => 'value',
+      '#default_value' => $database,
+    ];
+    
+    $options = chado_get_db_select_options();
+
+    $widget['db_id'] = [
+      '#type' => 'select',
+      '#title' => t('Database'),
+      '#options' => $options,
+      '#required' => $element['#required'],
+      '#default_value' => $db_id,
+      '#ajax' => [
+        'callback' => "datacite__nameidentifier_widget_form_ajax_callback",
+        'wrapper' => "$field_name-dbxref--db-id-$delta",
+        'effect' => 'fade',
+        'method' => 'replace',
+      ],
+    ];
+
+    $schema = chado_get_schema('dbxref');
+    $widget['accession'] = [
+      '#type' => 'textfield',
+      '#title' => t('Accession'),
+      '#default_value' => $accession,
+      '#required' => $element['#required'],
+      '#maxlength' => array_key_exists('length', $schema['fields']['accession']) ? $schema['fields']['accession']['length'] : 255,
+      '#size' => 15,
+    ];
   }
 
   /**
@@ -30,13 +148,84 @@ class datacite__nameidentifier_widget extends ChadoFieldWidget {
   *
   **/
   public function validate($element, $form, &$form_state, $langcode, $delta) {
+    $field_name = $this->field['field_name'];
+    $base_table = 'contact';
+    $field_table = 'contact_dbxref';
+
+    $schema = chado_get_schema($field_table);
+    $lfkey_field = key($schema['foreign keys'][$base_table]['columns']);
+
+    // Get the database name from the form state
+    $name = $form_state['values'][$field_name]['und'][$delta]['database'];
+    $accession = $form_state['values'][$field_name]['und'][$delta]['accession'];
+    //$database = chado_generate_var('database', ['name' => $name]);
+    //dpm($form_state);
+    // If no database is selected, we should set the field for deletion.
+    if (strlen($name) == 0) {
+      $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__' . $lfkey_field] = '';
+      $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__contact_id'] = '';
+
+      $form_state['values'][$field_name]['und'][$delta]['accession'] = '';
+      $form_state['values'][$field_name]['und'][$delta]['id'] = '';
+    }
   }
 
-   /**
+  /**
   * @see ChadoFieldWidget::submit()
   *
   **/
   public function submit($form, &$form_state, $entity_type, $entity, $langcode, $delta) {
+    $field_name = $this->field['field_name'];
+    //$field_table = $this->instance['settings']['chado_table'];
+    $field_table = 'contact_dbxref';
+
+    $dbxref_id = $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__dbxref_id'];
+    $db_id = $form_state['values'][$field_name]['und'][$delta]['db_id'];
+    $accession = $form_state['values'][$field_name]['und'][$delta]['accession'];
+    //dpm($form_state);
+    if ($db_id and $dbxref_id) {
+      // Update within the dbxref table
+      $dbxref = chado_insert_dbxref([
+        'db_id' => $db_id,
+        'accession' => $accession,
+      ]);
+      // Update within the contact_dbxref table
+      $values_ins = array(
+        'contact_id' => $form_state['values'][$field_name]['und'][$delta]['chado-contact_dbxref__contact_id'],
+        'dbxref_id' => $dbxref->dbxref_id,
+        'is_current' => '1',
+      );
+      //dpm($values);
+      $contact_dbxref = chado_insert_record(
+        'contact_dbxref',
+        $values_ins,
+      );
+      $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__dbxref_id'] = $dbxref->dbxref_id;
+      $form_state['values'][$field_name]['und'][$delta]['accession'] = $accession;
+      $form_state['values'][$field_name]['und'][$delta]['urlprefix'] = '';
+      $form_state['values'][$field_name]['und'][$delta]['url'] = '';
+    }
   }
 
+}
+
+/**
+ * An ajax callback for the dbxref widget
+ */
+function datacite__nameidentifier_widget_form_ajax_callback($form, $form_state) {
+  // Get the triggering element
+  $form_element_name = $form_state['triggering_element']['#name'];
+  preg_match('/(.+?)\[(.+?)\]\[(.+?)\]/', $form_element_name, $matches);
+  $field = $matches[1];
+  $lang = $matches[2];
+  $delta = $matches[3];
+
+  // Return the widget that triggered the AJAX call
+  if (isset($form[$field][$lang][$delta])) {
+    return $form[$field][$lang][$delta];
+  }
+  // Alternatively, return the default value widget for the widget setting form
+  else {
+    return $form['instance']['default_value_widget'][$field];
+  }
 }
