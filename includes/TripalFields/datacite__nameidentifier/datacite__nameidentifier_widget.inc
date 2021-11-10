@@ -106,7 +106,7 @@ class datacite__nameidentifier_widget extends ChadoFieldWidget {
       '#default_value' => $fk_value,
     ];
 
-    $widget['chado-' . $field_table . '__dbxref_id'] = [
+    $widget['dbxref_id'] = [
       '#type' => 'value',
       '#default_value' => $dbxref_id,
     ];
@@ -154,16 +154,17 @@ class datacite__nameidentifier_widget extends ChadoFieldWidget {
 
     $schema = chado_get_schema($field_table);
     $lfkey_field = key($schema['foreign keys'][$base_table]['columns']);
-
     // Get the database name from the form state
-    $name = $form_state['values'][$field_name]['und'][$delta]['database'];
+    $db_id = $form_state['values'][$field_name]['und'][$delta]['db_id'];
+    //error_log("db_id for " . $delta . ": " . $db_id . "\n", 3, "/tmp/php_debug.log");
     $accession = $form_state['values'][$field_name]['und'][$delta]['accession'];
     //$database = chado_generate_var('database', ['name' => $name]);
-    //dpm($form_state);
+    dpm($form_state['values'][$field_name]);
     // If no database is selected, we should set the field for deletion.
-    if (strlen($name) == 0) {
-      $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__' . $lfkey_field] = '';
-      $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__contact_id'] = '';
+    if ($db_id == 0) {
+      //error_log("No database selected for relationship field " . $delta . "\n", 3, "/tmp/php_debug.log");
+      $form_state['values'][$field_name]['und'][$delta]['chado-contact_dbxref__contact_dbxref_id'] = '';
+      $form_state['values'][$field_name]['und'][$delta]['chado-contact_dbxref__contact_id'] = '';
 
       $form_state['values'][$field_name]['und'][$delta]['accession'] = '';
       $form_state['values'][$field_name]['und'][$delta]['id'] = '';
@@ -179,9 +180,10 @@ class datacite__nameidentifier_widget extends ChadoFieldWidget {
     //$field_table = $this->instance['settings']['chado_table'];
     $field_table = 'contact_dbxref';
 
-    $dbxref_id = $form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__dbxref_id'];
+    $dbxref_id = $form_state['values'][$field_name]['und'][$delta]['dbxref_id'];
     $db_id = $form_state['values'][$field_name]['und'][$delta]['db_id'];
     $accession = $form_state['values'][$field_name]['und'][$delta]['accession'];
+    //error_log($dbxref_id . "=" . $db_id . ": " . $accession . "\n", 3, "/tmp/php_debug.log");
     //dpm($form_state);
     if ($db_id and $dbxref_id) {
       // Update within the dbxref table
