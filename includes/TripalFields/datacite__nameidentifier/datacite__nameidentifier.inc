@@ -137,7 +137,6 @@ class datacite__nameidentifier extends ChadoField {
       $delta = 0;
       // Fetch the accessions, db_ids, and database names for each dbxref_id
       foreach ($dbxref_ids as $dbxref_id) {
-        dpm($dbxref_id);
         $dbxref = chado_select_record(
           'dbxref',
           array('accession', 'db_id'),
