@@ -52,6 +52,7 @@ class datacite__creator_widget extends ChadoFieldWidget {
 
     // If the field already has a value then it will come through the $items
     // array.  This happens when editing an existing record.
+    // @TODO check the syntax of this if statement, it seems to be a bit malformatted (at the end).
     if (count($items) > 0 and array_key_exists($delta, $items) and strlen($items[$delta]['value'] > 0)) {
       $name = array_key_exists($name_term, $items[$delta]['value']) ? $items[$delta]['value'][$name_term] : $name;
       /*
@@ -136,7 +137,6 @@ class datacite__creator_widget extends ChadoFieldWidget {
     }
     // If no name is provided or the contact doesn't exist then we want to set the field for deletion.
     else {
-      dpm($form_state);
       if (!$form_state['values'][$field_name]['und'][$delta]['chado-' . $field_table . '__contact_id'] AND 
       strlen($name) > 0) {
         form_set_error($form_state['values'][$field_name]['und'][$delta]['name'],'Author ' . $name . ' does not exist. Please select an existing contact or add your contact first.');

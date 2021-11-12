@@ -23,6 +23,7 @@
 include('local__parent_analysis_pub.inc');
 include('analysis_contact.fields.inc');
 include('analysis_author.fields.inc');
+include('contact_identifier.fields.inc');
 
 function i5k_custom_fields_bundle_fields_info($entity_type, $bundle) {
     $fields = array();
@@ -35,6 +36,9 @@ function i5k_custom_fields_bundle_fields_info($entity_type, $bundle) {
 
     // Analysis Author
     analysis_author_bundle_fields_info($entity_type, $bundle, $fields);
+
+    // Contact Identifier
+    contact_identifier_bundle_fields_info($entity_type, $bundle, $fields);
 
     return $fields;
 }
@@ -52,6 +56,9 @@ function i5k_custom_fields_bundle_instances_info($entity_type, $bundle) {
 
     // Analysis Author
     analysis_author_bundle_instances_info($entity_type, $bundle, $instances);
+
+    // Contact Identifier
+    contact_identifier_bundle_instances_info($entity_type, $bundle, $instances);
 
     return $instances;
 }

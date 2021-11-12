@@ -1,0 +1,20 @@
+Field Label
+Contact Identifier
+
+Field Description
+One or more values to uniquely identify a contact
+
+Module Name
+contact_identifier
+
+Database Name
+datacite
+
+Controlled Vocabulary
+dcterms
+
+Controlled Vocabulary Term
+nameIdentifier
+
+Accession (ints for bio CVs, strings for semantic)
+nameIdentifier
