@@ -87,6 +87,8 @@ class datacite__nameidentifier_widget extends ChadoFieldWidget {
     $widget['chado-' . $field_table . '__' . $fkey_lcolumn] = [
       '#type' => 'value',
       '#default_value' => $fk_value,
+      // Disable for now since it doesn't work
+      '#disabled' => TRUE,
     ];
 
     $widget['dbxref_id'] = [
@@ -100,6 +102,7 @@ class datacite__nameidentifier_widget extends ChadoFieldWidget {
       '#title' => t('Database'),
       '#options' => $options,
       '#required' => $element['#required'],
+      '#prefix' => t('These fields are currently disabled as the functionality does not exist yet. Please manually enter values in the database (dbxref followed by dbxref_contact).'),
       '#default_value' => $db_id,
       '#ajax' => [
         'callback' => "datacite__nameidentifier_widget_form_ajax_callback",
@@ -107,6 +110,8 @@ class datacite__nameidentifier_widget extends ChadoFieldWidget {
         'effect' => 'fade',
         'method' => 'replace',
       ],
+      // Disable for now since it doesn't work
+      '#disabled' => TRUE,
     ];
 
     $schema = chado_get_schema('dbxref');
@@ -117,6 +122,8 @@ class datacite__nameidentifier_widget extends ChadoFieldWidget {
       '#required' => $element['#required'],
       '#maxlength' => array_key_exists('length', $schema['fields']['accession']) ? $schema['fields']['accession']['length'] : 255,
       '#size' => 15,
+      // Disable for now since it doesn't work
+      '#disabled' => TRUE,
     ];
   }
 
