@@ -1,0 +1,338 @@
+<?php
+
+/**
+ * implements hook_install();
+ * 
+ * Various install functions for this module
+ */
+function i5k_custom_fields_install() {
+    /**
+     * Create chado.analysis_contact table
+     * Since this is a custom Chado table, we will use 
+     * chado_create_custom_table() instead of passing it
+     * along like normal with $schema.
+     */
+    // Define the schema for chado.analysis_contact
+    $schema_analysis_contact = [
+        'table' => 'analysis_contact',
+        'fields' => [
+            'analysis_contact_id' => [
+                'type' => 'serial',
+                'not null' => TRUE
+            ],
+            'analysis_id' => [
+                'description' => t('ID of the linked analysis.'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null'  => TRUE,
+            ],
+            'contact_id' => [
+                'description' => t('ID of the linked contact.'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null'  => TRUE,
+            ],
+            'type_id' => [
+                'description' => t('Type of analysis contact (from cvterm.cvterm_id)'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null' => TRUE,
+            ],
+        ],
+        'foreign keys' => [
+            'analysis' => [
+                'table' => 'analysis',
+                'columns' => [
+                    'analysis_id' => 'analysis_id',
+                ],
+            ],
+            'contact' => [
+                'table' => 'contact',
+                'columns' => [
+                    'contact_id' => 'contact_id',
+                ],
+            ],
+            'cvterm' => [
+                'table' => 'cvterm',
+                'columns' => [
+                    'type_id' => 'cvterm_id'
+                ],
+            ],
+        ],
+        'unique keys' => [
+            'analysis_contact_c1' => ['contact_id', 'analysis_id', 'type_id'],
+        ],
+        'primary key' => ['analysis_contact_id'],
+    ];
+
+    // Define the schema for chado.contact_dbxref
+    $schema_contact_dbxref = [
+        'table' => 'contact_dbxref',
+        'fields' => [
+            'contact_dbxref_id' => [
+                'description'   => t(''),
+                'type'          => 'serial',
+                'size'          => 'big',
+                'not null'      => TRUE
+            ],
+            'contact_id' => [
+                'description' => t('ID of the linked contact.'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null'  => TRUE,
+            ],
+            'dbxref_id' => [
+                'description' => t('ID of the linked dbxref.'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null'  => TRUE,
+            ],
+            'is_current' => [
+                'description' => t('True if this dbxref is the most up to date accession in the corresponding db. Retired accessions should set this field to false.'),
+                'type'      => 'int',
+                'size'      => 'tiny',
+                'not null' => TRUE,
+            ],
+        ],
+        'foreign keys' => [
+            'contact' => [
+                'table' => 'contact',
+                'columns' => [
+                    'contact_id' => 'contact_id',
+                ],
+            ],
+            'dbxref' => [
+                'table' => 'dbxref',
+                'columns' => [
+                    'dbxref_id' => 'dbxref_id',
+                ],
+            ],
+        ],
+        'unique keys' => [
+            'contact_dbxref_c1' => ['contact_id', 'dbxref_id', 'is_current'],
+        ],
+        'primary key' => ['contact_dbxref_id'],
+    ];
+    // Pass it to chado_create_custom_table()
+    chado_create_custom_table('analysis_contact', $schema_analysis_contact, FALSE, NULL, FALSE);
+    chado_create_custom_table('contact_dbxref', $schema_contact_dbxref, FALSE, NULL, FALSE);
+}
+
+/**
+ * implements hook_schema();
+ * 
+ * define the schema for custom tables used by fields in this module
+ */
+function i5k_custom_fields_schema() {
+    # TODO get the proper name of the Chado schema in case it isn't 'chado'.
+    /*$schema['chado.contact_dbxref'] = array(
+        'description' => t('Links a contact to dbxrefs.'),
+        'fields' => array(
+            'contact_dbxref_id' => array(
+                'description'   => t(''),
+                'type'          => 'int',
+                'size'          => 'big',
+                'not null'      => TRUE,
+            ),
+            'contact_id' => array(
+                'description'   => t('The contact to associate with the dbxref.'),
+                'type'          => 'int',
+                'size'          => 'big',
+                'not null'      => TRUE,
+            ),
+            'dbxref_id' => array(
+                'description'   => t('The dbxref to associate with the contact.'),
+                'type'          => 'int',
+                'size'          => 'big',
+                'not null'      => TRUE,
+            ),
+            'is_current' => array(
+                'description'   => t('True if this dbxref is the most up to date accession in the corresponding db. Retired accessions should set this field to false.'),
+                'type'          => 'int',
+                'size'          => 'tiny',
+                'not null'      => TRUE,
+            ),
+        ),
+        'foreign keys' => array(
+            'contact_id' => array(
+                'table' => 'chado.contact',
+                'columns' => array(
+                    'contact_id',
+                ),
+            ),
+            'dbxref_id' => array(
+                'table' => 'chado.dbxref',
+                'columns' => array(
+                    'dbxref_id',
+                ),
+            ),
+        ),
+    );
+    */
+
+    /**
+     * See the i5k_custom_fields_install() function to view the default
+     * schema for the following custom tables:
+     *  - chado.analysis_contact
+     *  - chado.contact_dbxref
+     */
+
+
+    // Schema is all set up, let's return
+    //return $schema;
+}
+
+/**
+ * Add the chado.contaxt_dbxref table for analysis author and contact fields.
+ */
+function i5k_custom_fields_update_7000() {
+    db_create_table(
+        'chado.contact_dbxref',
+        array(
+            'description' => t('Links a contact to dbxrefs.'),
+            'fields' => array(
+                'contact_dbxref_id' => array(
+                    'description'   => t(''),
+                    'type'          => 'int',
+                    'size'          => 'big',
+                    'not null'      => TRUE,
+                ),
+                'contact_id' => array(
+                    'description'   => t('The contact to associate with the dbxref.'),
+                    'type'          => 'int',
+                    'size'          => 'big',
+                    'not null'      => TRUE,
+                ),
+                'dbxref_id' => array(
+                    'description'   => t('The dbxref to associate with the contact.'),
+                    'type'          => 'int',
+                    'size'          => 'big',
+                    'not null'      => TRUE,
+                ),
+                'is_current' => array(
+                    'description'   => t('True if this dbxref is the most up to date accession in the corresponding db. Retired accessions should set this field to false.'),
+                    'type'          => 'int',
+                    'size'          => 'tiny',
+                    'not null'      => TRUE,
+                ),
+            ),
+            'foreign keys' => array(
+                'contact_id' => array(
+                    'table' => 'chado.contact',
+                    'columns' => array(
+                        'contact_id',
+                    ),
+                ),
+                'dbxref_id' => array(
+                    'table' => 'chado.dbxref',
+                    'columns' => array(
+                        'dbxref_id',
+                    ),
+                ),
+            ),
+        )
+    );
+}
+/**
+ * Add the chado.analysis_contact linker table.
+ */
+function i5k_custom_fields_update_7001() {
+
+    $schema = [
+        'table' => 'analysis_contact',
+        'fields' => [
+            'analysis_contact_id' => [
+                'type' => 'serial',
+                'not null' => TRUE
+            ],
+            'analysis_id' => [
+                'description' => t('ID of the linked analysis.'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null'  => TRUE,
+            ],
+            'contact_id' => [
+                'description' => t('ID of the linked contact.'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null'  => TRUE,
+            ],
+        ],
+        'foreign keys' => [
+            'analysis' => [
+                'table' => 'analysis',
+                'columns' => [
+                    'analysis_id' => 'analysis_id',
+                ],
+            ],
+            'contact' => [
+                'table' => 'contact',
+                'columns' => [
+                    'contact_id' => 'contact_id',
+                ],
+            ],
+        ],
+        'unique keys' => [
+            'analysis_contact_c1' => ['contact_id', 'analysis_id'],
+        ],
+        'primary key' => ['analysis_contact_id'],
+    ];
+    chado_create_custom_table('analysis_contact', $schema, TRUE, NULL, FALSE);
+}
+/**
+ * Add column 'type_id' to chado.analysis_contact
+ */
+function i5k_custom_fields_update_7002() {
+    $schema = [
+        'table' => 'analysis_contact',
+        'fields' => [
+            'analysis_contact_id' => [
+                'type' => 'serial',
+                'not null' => TRUE
+            ],
+            'analysis_id' => [
+                'description' => t('ID of the linked analysis.'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null'  => TRUE,
+            ],
+            'contact_id' => [
+                'description' => t('ID of the linked contact.'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null'  => TRUE,
+            ],
+            'type_id' => [
+                'description' => t('Type of analysis contact (from cvterm.cvterm_id)'),
+                'type'      => 'int',
+                'size'      => 'big',
+                'not null' => TRUE,
+            ],
+        ],
+        'foreign keys' => [
+            'analysis' => [
+                'table' => 'analysis',
+                'columns' => [
+                    'analysis_id' => 'analysis_id',
+                ],
+            ],
+            'contact' => [
+                'table' => 'contact',
+                'columns' => [
+                    'contact_id' => 'contact_id',
+                ],
+            ],
+            'cvterm' => [
+                'table' => 'cvterm',
+                'columns' => [
+                    'type_id' => 'cvterm_id'
+                ],
+            ],
+        ],
+        'unique keys' => [
+            'analysis_contact_c1' => ['contact_id', 'analysis_id', 'type_id'],
+        ],
+        'primary key' => ['analysis_contact_id'],
+    ];
+    chado_create_custom_table('analysis_contact', $schema, FALSE, NULL, FALSE);
+}

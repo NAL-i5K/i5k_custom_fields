@@ -6,7 +6,7 @@
  * Data:
  * Assumptions:
  */
-class local__parent_analysis_pub extends ChadoField {
+class datacite__nameidentifier extends ChadoField {
 
   // --------------------------------------------------------------------------
   //                     EDITABLE STATIC CONSTANTS
@@ -17,21 +17,21 @@ class local__parent_analysis_pub extends ChadoField {
   // --------------------------------------------------------------------------
 
   // The default label for this field.
-  public static $default_label = 'Genome Annotation Publication';
+  public static $default_label = 'Contact Identifier';
 
   // The default description for this field.
-  public static $default_description = 'Displays publications of the related parent analysis';
+  public static $default_description = 'One or more values to uniquely identify a contact';
 
   // The default widget for this field.
-  public static $default_widget = 'local__parent_analysis_pub_widget';
+  public static $default_widget = 'datacite__nameidentifier_widget';
 
   // The default formatter for this field.
-  public static $default_formatter = 'local__parent_analysis_pub_formatter';
+  public static $default_formatter = 'datacite__nameidentifier_formatter';
 
   // The module that manages this field.
   // If no module manages the field (IE it's added via libraries)
   // set this to 'tripal_chado'
-  public static $module = 'i5k_custom_fields';
+  public static $module = 'contact_identifier';
 
   // A list of global settings. These can be accessed within the
   // globalSettingsForm.  When the globalSettingsForm is submitted then
@@ -46,15 +46,14 @@ class local__parent_analysis_pub extends ChadoField {
      // be a controlled vocabulary term (e.g. rdfs:type). Keys in the load()
      // function that are supported by the query() function should be
      // listed here.
-    'searchable_keys' => array(),
-    // TODO Pumpkin check this out ^
+     'searchable_keys' => array(),
   );
 
   // Indicates the download formats for this field.  The list must be the
   // name of a child class of the TripalFieldDownloader.
   public static $download_formatters = array(
-    'TripalTabDownloader',
-    'TripalCSVDownloader',
+     'TripalTabDownloader',
+     'TripalCSVDownloader',
   );
 
   // Provide a list of instance specific settings. These can be access within
@@ -66,11 +65,11 @@ class local__parent_analysis_pub extends ChadoField {
   // required for all TripalFields.
   public static $default_instance_settings = array(
     // The DATABASE name, as it appears in chado.db.  This also builds the link-out url.  In most cases this will simply be the CV name.  In some cases (EDAM) this will be the SUBONTOLOGY.
-    'term_vocabulary' => 'local',
+    'term_vocabulary' => 'datacite',
     // The name of the term.
-    'term_name' => 'parent_analysis_pub',
+    'term_name' => 'nameIdentifier',
     // The unique ID (i.e. accession) of the term.
-    'term_accession' => 'parent_analysis_pub',
+    'term_accession' => 'nameIdentifier',
     // Set to TRUE if the site admin is not allowed to change the term
     // type, otherwise the admin can change the term mapped to a field.
     'term_fixed' => FALSE,
@@ -81,7 +80,7 @@ class local__parent_analysis_pub extends ChadoField {
     // attached asynchronously.
     'auto_attach' => FALSE,
     // The table in Chado that the instance maps to.
-    'chado_table' => '',
+    'chado_table' => 'contact_dbxref',
     // The column of the table in Chado where the value of the field comes from.
     'chado_column' => '',
     // The base table.
@@ -100,10 +99,10 @@ class local__parent_analysis_pub extends ChadoField {
   // the user but otherwise provides no data.
   public static $no_data = FALSE;
 
-  /**
-  * @see ChadoField::load()
-  *
-  **/
+   /**
+    * @see ChadoField::load()
+    *
+    **/
 
   public function load($entity) {
 
@@ -111,40 +110,67 @@ class local__parent_analysis_pub extends ChadoField {
     // default settings above. If that is all you need then you don't even
     // need to implement this function. However, if you need to add any
     // additional data to be used in the display, you should add it here.
-    //parent::load($entity); // Why is this commented out?
+    parent::load($entity);
 
-    // Get the record for the purposes of traversing its related data
     $record = $entity->chado_record;
-
     $field = get_class($this);
 
-    // Expand the object to include the relationships
-    // I'm not sure if I need this part or if it needs to be expanded. PUMPKIN
-    $options =
-    [
-      'return_array' => 1
-    ];
-    $rel_table = 'analysisfeature';
-    $record = chado_expand_var($record, 'table', $rel_table, $options);
+    // Values we are looking for:
+    // db_id, accession, contact_id
+    /* Values we are looking for
+     *  - contact_id          (from $record)
+     *  - dbxref_id(s)        (from chado.contact_dbxref)
+     *  - accession           (from chado.dbxref where dbxref_id = this one)
+     *  - db_id               (from chado.dbxref where dbxref_id = this one)
+     *  - (database) name     (from chado.db where db_id = chado.dbxref.db_id = this one)
+     *  - urlprefix           (from chado.db where db_id = chado.dbxref.db_id = this one)
+     *  - url                 (from chado.db where db_id = chado.dbxref.db_id = this one)
+     */
 
-    // Extract just the analysis
-    $analysis_v1 = $record->analysisfeature[0];
-    // Generate a new var for the analysis instead of continuously expanding,
-    //  which sort of does not work anyway (see diff of $analysis_v1 and 2)
-    $values = array (
-      'name' => $analysis_v1->analysis_id->name,
+    // Get any associated dbxref_ids from chado.contact_dbxref
+    $dbxref_ids = chado_select_record(
+      'contact_dbxref',
+      array('dbxref_id'),
+      array('contact_id' => $record->contact_id)
     );
-    $analysis_v2 = chado_generate_var('analysis',$values);
+    if (!empty($dbxref_ids)) {
+      $delta = 0;
+      // Fetch the accessions, db_ids, and database names for each dbxref_id
+      foreach ($dbxref_ids as $dbxref_id) {
+        $dbxref = chado_select_record(
+          'dbxref',
+          array('accession', 'db_id'),
+          array('dbxref_id' => $dbxref_id->dbxref_id)
+        );
+        // Using the db_id, get name, urlprefix, and url
+        foreach($dbxref as $db) {
+          $db_info = chado_select_record(
+            'db',
+            array('name', 'urlprefix', 'url'),
+            array('db_id' => $db->db_id)
+          );
+        }
 
-    // We have the analysis, now get the publication. Could we have done this with a single chado_expand_var()?
-    $publication = chado_expand_var($analysis_v2, 'table', 'analysis_pub');
-
-    // Load up the values into the $entity variable to pass on to the view() function
-    $entity->{$field}['und'][0]['value'] = [
-      "TPUB:0000039" => $publication->analysis_pub->pub_id->title,
-      "entity_id" =>    $publication->analysis_pub->pub_id->entity_id
-    ];
-    $publication->analysis_pub->pub_id->entity_id;
+        /**
+         * Values to pass
+         *  - accession
+         *  - database name
+         *  - urlprefix
+         *  - url
+         *  ? db_id
+         *  ? dbxref_id
+         */
+        $entity->{$field}['und'][$delta]['value'] = [
+          "accession" => $db->accession,
+          "database" => $db_info[0]->name,
+          "urlprefix" => $db_info[0]->urlprefix,
+          "url" => $db_info[0]->url,
+          "db_id" => $db->db_id,
+          "dbxref_id" => $dbxref_id->dbxref_id,
+        ];
+        $delta++;
+      }
+    }
   }
 
 

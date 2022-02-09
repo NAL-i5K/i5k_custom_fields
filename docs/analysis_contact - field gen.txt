@@ -1,0 +1,20 @@
+Field Label
+Analysis Contact
+
+Field Description
+The contact person for the analysis. ADC Equivalent: Contact name
+
+Module Name
+analysis_contact
+
+Database name
+datacite
+
+Controlled Vocabulary
+dcterms
+
+Controlled Vocabulary Term
+contributor
+
+Accession (ints for bio CVs, strings for semantic)
+contributor

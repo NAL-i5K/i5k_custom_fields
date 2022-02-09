@@ -31,32 +31,35 @@
  *   doesn't already exist. To trigger create of fields when developing call
  *   tripal_refresh_bundle_fields() for the specific bundle.
  */
-function local__parent_analysis_pub_bundle_fields_info($entity_type, $bundle, &$fields) {
+function contact_identifier_bundle_fields_info($entity_type, $bundle, &$fields) {
+
   // Because we are expecting data housed in Chado we can use the 'data_table'
   // property of the bundle to determine if this bundle is really the one
   // we want the field to be associated with.
-  if (isset($bundle->data_table) AND ($bundle->data_table == 'feature') AND ( ($bundle->term->name == 'mRNA') OR ($bundle->term->name == 'gene') )) {
+  if (isset($bundle->data_table) AND ($bundle->data_table == 'contact')) {
     // First add my term.
     tripal_insert_cvterm(array(
-      'id' => 'local:parent_analysis_pub',
-      'name' => 'parent_analysis_pub',
-      'cv_name' => 'local',
-      'definition' => 'Displays publications of the related parent analysis',
+      'id' => 'datacite:nameIdentifier',
+      'name' => 'nameIdentifier',
+      'cv_name' => 'dcterms',
+      'definition' => 'One or more values to uniquely identify a contact',
     ));
 
     // Then describe the field defined by that term.
-    $field_name = 'local__parent_analysis_pub';
-    $field_type = 'local__parent_analysis_pub';
+    $field_name = 'datacite__nameidentifier';
+    $field_type = 'datacite__nameidentifier';
     $fields[$field_name] = array(
       'field_name' => $field_name,
       'type' => $field_type,
-      'cardinality' => 1,
+      'cardinality' => FIELD_CARDINALITY_UNLIMITED,
       'locked' => FALSE,
       'storage' => array(
         'type' => 'field_chado_storage',
       ),
     );
   }
+
+  return $fields;
 }
 
 /**
@@ -81,39 +84,41 @@ function local__parent_analysis_pub_bundle_fields_info($entity_type, $bundle, &$
  *   for any settings you use in your field. Each entry in this array will be used to
  *   create an instance of an already existing field.
  */
-function local__parent_analysis_pub_bundle_instances_info($entity_type, $bundle, &$instances) {
-  //if (isset($bundle->data_table) AND ($bundle->data_table == $my_data_table)) {
-  if (isset($bundle->data_table) AND ($bundle->data_table == 'feature') AND ( ($bundle->term->name == 'mRNA') OR ($bundle->term->name == 'gene') )) {
-    $field_name = 'local__parent_analysis_pub';
-    $field_type = 'local__parent_analysis_pub';
+function contact_identifier_bundle_instances_info($entity_type, $bundle, &$instances) {
+
+  if (isset($bundle->data_table) AND ($bundle->data_table == 'contact')) {
+    $field_name = 'datacite__nameidentifier';
+    $field_type = 'datacite__nameidentifier';
     $instances[$field_name] =  array(
       'field_name' => $field_name,
       'entity_type' => $entity_type,
       'bundle' => $bundle->name,
-      'label' => 'Genome Annotation Publication',
-      'description' => 'Displays publications of the related parent analysis',
+      'label' => 'Contact Identifier',
+      'description' => 'One or more values to uniquely identify a contact',
       'required' => FALSE,
       'settings' => array(
-        'term_vocabulary' => 'local',
-        'term_name' => 'parent_analysis_pub',
-        'term_accession' => 'parent_analysis_pub',
+        'term_vocabulary' => 'datacite',
+        'term_name' => 'nameIdentifier',
+        'term_accession' => 'nameIdentifier',
         'auto_attach' => FALSE,
         'chado_table' => $bundle->data_table,
         'chado_column' => null,
         'base_table' => null,
       ),
       'widget' => array(
-        'type' => 'local__parent_analysis_pub_widget',
+        'type' => 'datacite__nameidentifier_widget',
         'settings' => array(),
       ),
       'display' => array(
         'default' => array(
           'label' => 'hidden',
-          'type' => 'local__parent_analysis_pub_formatter',
+          'type' => 'datacite__nameidentifier_formatter',
           'settings' => array(),
         ),
       ),
     );
 
   }
+
+  return $instances;
 }
